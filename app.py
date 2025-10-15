@@ -14,14 +14,25 @@ LLM_MODEL = "gemini-2.5-flash"
 EMBEDDING_MODEL = "models/text-embedding-004" 
 DB_PATH = "rag_store"
 
+# CRITICAL FIX: Streamlit Cloud veya yerel ortamdan API anahtarını çekme
+# Önce st.secrets (Cloud için) sonra os.getenv (Lokal için) kontrol edilir.
+if "gemini" in st.secrets:
+    # Key, Streamlit Secrets'ta [gemini] altında api_key olarak tanımlanmıştır.
+    API_KEY = st.secrets["gemini"]["api_key"]
+else:
+    # Yerel ortamda veya Cloud'da ortam değişkeni (Environment Variable)
+    API_KEY = os.getenv("GEMINI_API_KEY")
+
 # --- RAG Fonksiyonları ---
 @st.cache_resource
 def load_rag_chain():
     """RAG zincirini ve LLM'i yükler."""
 
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = API_KEY  # Yeni API_KEY değişkenini kullanıyoruz.
+    
     if not api_key:
-        st.error("❌ HATA: GEMINI_API_KEY ortam değişkeni bulunamadı. Lütfen Terminal'de ayarlayın.")
+        # Hata mesajı, artık sadece ortam değişkenini değil, Secrets ayarını da işaret ediyor.
+        st.error("❌ HATA: GEMINI_API_KEY bulunamadı. Lütfen **.streamlit/secrets.toml** dosyanızı veya Streamlit Cloud'daki **Secrets** ayarını kontrol edin.")
         return None 
 
     # 1. Embedding Fonksiyonu
