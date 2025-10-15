@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 from pathlib import Path
+from typing import List
 
 # LangChain ve Gemini Kütüphaneleri
 from langchain_google_genai import ChatGoogleGenerativeAI 
@@ -8,11 +9,14 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.chains import RetrievalQA
 from langchain.prompts import PromptTemplate
 from langchain_community.vectorstores import Chroma 
+from langchain_community.document_loaders import DirectoryLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 # --- Sabitler ve Ayarlar ---
 LLM_MODEL = "gemini-2.5-flash"
 EMBEDDING_MODEL = "models/text-embedding-004" 
 DB_PATH = "rag_store"
+DOCS_PATH = "data_docs" # Dokümanların bulunduğu klasör
 
 # CRITICAL FIX: Streamlit Cloud veya yerel ortamdan API anahtarını çekme
 # Önce st.secrets (Cloud için) sonra os.getenv (Lokal için) kontrol edilir.
@@ -26,28 +30,61 @@ else:
 # --- RAG Fonksiyonları ---
 @st.cache_resource
 def load_rag_chain():
-    """RAG zincirini ve LLM'i yükler."""
+    """RAG zincirini, LLM'i yükler ve veritabanını kontrol/oluşturur."""
 
-    api_key = API_KEY  # Yeni API_KEY değişkenini kullanıyoruz.
+    api_key = API_KEY
     
     if not api_key:
         # Hata mesajı, artık sadece ortam değişkenini değil, Secrets ayarını da işaret ediyor.
         st.error("❌ HATA: GEMINI_API_KEY bulunamadı. Lütfen **.streamlit/secrets.toml** dosyanızı veya Streamlit Cloud'daki **Secrets** ayarını kontrol edin.")
         return None 
-
+    
     # 1. Embedding Fonksiyonu
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL, google_api_key=api_key)
 
     # 2. Veritabanının varlığını kontrol et ve yükle
+    vector_store = None
+    
     if not Path(DB_PATH).exists():
-        st.warning("⚠️ RAG veritabanı bulunamadı. Lütfen 'python3 ingest.py' komutunu çalıştırın!")
-        return None
+        # --- VERİTABANI YOKSA OTOMATİK OLUŞTURMA BAŞLANGICI ---
+        st.warning("⚠️ RAG veritabanı bulunamadı. Şimdi `data_docs` klasöründen otomatik olarak yeniden oluşturuluyor...")
+        
+        try:
+            # Dokümanları yükleme
+            loader = DirectoryLoader(
+                DOCS_PATH,
+                glob="**/*.txt", # Sadece TXT dosyalarını yüklesin
+                loader_kwargs={'encoding': 'utf-8', 'errors': 'ignore'}
+            )
+            docs = loader.load()
+            
+            # Parçalara ayırma (Chunking)
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            chunks = text_splitter.split_documents(docs)
+            
+            if not chunks:
+                st.error("HATA: Otomatik indeksleme başarısız oldu. Dokümanlar boş veya okunamıyor.")
+                return None
 
-    # Vektör Veritabanını yükle (Sistemin kalbi)
-    vector_store = Chroma(
-        persist_directory=DB_PATH, 
-        embedding_function=embeddings
-    )
+            # Vektör Veritabanını oluştur
+            vector_store = Chroma.from_documents(
+                documents=chunks,
+                embedding=embeddings,
+                persist_directory=DB_PATH # Kaydet
+            )
+            st.success(f"✅ RAG Veritabanı canlıda başarıyla oluşturuldu! Toplam {len(chunks)} parça eklendi.")
+            
+        except Exception as e:
+            st.error(f"FATAL HATA: Otomatik indeksleme sırasında beklenmeyen hata oluştu: {e}")
+            return None
+        # --- OTOMATİK OLUŞTURMA SONU ---
+        
+    else:
+        # Veritabanı varsa, sadece yükle
+        vector_store = Chroma(
+            persist_directory=DB_PATH, 
+            embedding_function=embeddings
+        )
 
     # 3. RAG Zincirini Kurma (Retriever + Prompt + LLM)
     llm = ChatGoogleGenerativeAI(model=LLM_MODEL, temperature=0.2, google_api_key=api_key)
