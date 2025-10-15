@@ -47,7 +47,7 @@ def load_rag_chain():
     
     if not Path(DB_PATH).exists():
         # --- VERİTABANI YOKSA OTOMATİK OLUŞTURMA BAŞLANGICI ---
-        st.warning("⚠️ RAG veritabanı bulunamadı. Şimdi `data_docs` klasöründen otomatik olarak yeniden oluşturuluyor...")
+        # UYARI: Streamlit Cloud'da ilk çalıştırmada sessizce otomatik olarak yeniden oluşturuluyor.
         
         try:
             # Dokümanları yükleme
@@ -72,7 +72,7 @@ def load_rag_chain():
                 embedding=embeddings,
                 persist_directory=DB_PATH # Kaydet
             )
-            st.success(f"✅ RAG Veritabanı canlıda başarıyla oluşturuldu! Toplam {len(chunks)} parça eklendi.")
+            # BAŞARI MESAJI KALDIRILDI
             
         except Exception as e:
             st.error(f"FATAL HATA: Otomatik indeksleme sırasında beklenmeyen hata oluştu: {e}")
