@@ -35,10 +35,9 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 2.  **API Anahtarı Ayarı:** Gemini API Anahtarı, Streamlit Cloud'un **Secrets** menüsüne (veya `.streamlit/secrets.toml` dosyasına) tanımlanmıştır.
 3.  **Veritabanı Oluşturma:** Uygulama, `app.py` içerisinde `rag_store` klasörünü bulamazsa, ilk çalıştırmada `data_docs` klasöründen veritabanını **otomatik olarak oluşturacak** şekilde ayarlanmıştır.
 
+### Deploy Linki
+https://bootcamp-biomedical-chatbot-he2gvhhkpcdzlz4shr6xfn.streamlit.app/ 
+
 ### Lokal Çalıştırma Komutu
 ```bash
 streamlit run app.py
-
-
-Deploy Linki
-https://bootcamp-biomedical-chatbot-he2gvhhkpcdzlz4shr6xfn.streamlit.app/ 
