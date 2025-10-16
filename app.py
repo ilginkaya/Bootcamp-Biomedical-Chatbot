@@ -42,7 +42,7 @@ def load_rag_chain():
     # 1. Embedding Fonksiyonu
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL, google_api_key=api_key)
 
-    # 2. Veritabanının varlığını kontrol et ve yükle
+    # 2. Veritabanının varlığını kontrol edip yükleme
     vector_store = None
     
     if not Path(DB_PATH).exists():
@@ -66,7 +66,7 @@ def load_rag_chain():
                 st.error("HATA: Otomatik indeksleme başarısız oldu. Dokümanlar boş veya okunamıyor.")
                 return None
 
-            # Vektör Veritabanını oluştur
+            # Vektör Veritabanını oluşturma
             vector_store = Chroma.from_documents(
                 documents=chunks,
                 embedding=embeddings,
@@ -80,7 +80,7 @@ def load_rag_chain():
         # --- OTOMATİK OLUŞTURMA SONU ---
         
     else:
-        # Veritabanı varsa, sadece yükle
+        # Veritabanı varsa, sadece onu yükle
         vector_store = Chroma(
             persist_directory=DB_PATH, 
             embedding_function=embeddings
