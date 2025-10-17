@@ -1,18 +1,18 @@
 # 🔬 Biyomedikal RAG Bilgi Asistanı (Gemini & LangChain)
 
-## 📌 1. Projenin Amacı (Bootcamp Kriteri)
+## 📌 1. Projenin Amacı
 
 Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **Retrieval Augmented Generation (RAG)** temelli bir sohbet robotu geliştirerek bunu bir web arayüzü üzerinden sunmaktır.
 
 * **Çözülen Problem:** Biyomedikal Mühendisliği alanındaki karmaşık, yapılandırılmamış teknik metinlerden (PDF/TXT/MD), hızlı, güvenilir ve **kaynak gösteren** bilgi çekimi sağlamaktır.
 * **Teknolojiler:** Gemini LLM, LangChain, ChromaDB.
 
-## 📚 2. Veri Seti Hazırlama (Bootcamp Kriteri)
+## 📚 2. Veri Seti Hazırlama 
 
 * **Konu:** Biyomedikal Mühendisliği Temelleri, İmmünoloji, Tıbbi Görüntüleme, Biyoetik ve Cihaz Regülasyonları gibi 14 farklı konuyu kapsayan bilgi tabanı.
 * **Hazırlık Metodolojisi:** Hazır bilgi kaynaklarından toplanan bilgiler, projenin amacına uygun olarak **özel hazırlanmış 14 adet TXT/MD dosyası** (`data_docs/` klasöründe) haline getirilerek yapılandırılmıştır.
 
-## ⚙️ 3. Çözüm Mimariniz ve Kullanılan Yöntemler (Bootcamp Kriteri)
+## ⚙️ 3. Çözüm Mimariniz ve Kullanılan Yöntemler 
 
 | Bileşen | Kullanılan Teknoloji | Amaç |
 | :--- | :--- | :--- |
@@ -23,7 +23,7 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 
 **RAG Süreci:** Kullanıcı sorgusu alınır. ChromaDB'den en alakalı metin parçaları çekilir. Bu parçalar ve sorgu, Gemini'ye gönderilerek nihai, **bağlama dayalı** yanıt oluşturulur.
 
-## 🚀 4. Kodunuzun Çalışma Kılavuzu (Bootcamp Kriteri)
+## 🚀 4. Kodunuzun Çalışma Kılavuzu 
 
 ### Ön Koşullar
 * Python 3.9+
@@ -37,6 +37,17 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 
 ### Deploy Linki
 https://bootcamp-biomedical-chatbot-he2gvhhkpcdzlz4shr6xfn.streamlit.app/ 
+
+
+## ✅ 5. Web Arayüzü & Product Kılavuzu 
+
+**Çalışma Akışı:** Kullanıcı, arayüzde sorusunu sorar. Chatbot, otomatik olarak oluşturulan veritabanından bilgi çeker. Cevabın altında, bilginin hangi kaynaktan (hangi TXT/MD dosyasından) alındığı gösterilir.
+**Kabiliyet:** Chatbot, biyomedikal terimleri, cihazları ve etik ilkeleri net, kısa ve teknik dille açıklar.
+
+### Test Senaryosu Örnekleri
+Bu testler, projenin **elde ettiği sonuçları** ve kabiliyetini gösterir:
+**Test:** "Biyomedikal araştırmalarda etik kurallardan biri olan Özerklik ne anlama gelir?" (Beklenen: Kaynak göstererek doğru ve teknik yanıt.)
+**Sınır Testi:** "Fransa'nın başkenti neresidir?" (Beklenen: Bağlam dışı yanıt ("Bu konuda elimde yeterli bilgi yok.") ile RAG izolasyonunun kanıtı.)
 
 ### Lokal Çalıştırma Komutu
 ```bash
