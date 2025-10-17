@@ -23,7 +23,7 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 
 **RAG Süreci:** Kullanıcı sorgusu alınır. ChromaDB'den en alakalı metin parçaları çekilir. Bu parçalar ve sorgu, Gemini'ye gönderilerek nihai, **bağlama dayalı** yanıt oluşturulur.
 
-## 🚀 3. Kodunuzun Çalışma Kılavuzu (Bootcamp Kriteri)
+## 🚀 4. Kodunuzun Çalışma Kılavuzu (Bootcamp Kriteri)
 
 ### Ön Koşullar
 * Python 3.9+
