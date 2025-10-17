@@ -12,7 +12,7 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 * **Konu:** Biyomedikal Mühendisliği Temelleri, İmmünoloji, Tıbbi Görüntüleme, Biyoetik ve Cihaz Regülasyonları gibi 14 farklı konuyu kapsayan bilgi tabanı.
 * **Hazırlık Metodolojisi:** Hazır bilgi kaynaklarından toplanan bilgiler, projenin amacına uygun olarak **özel hazırlanmış 14 adet TXT/MD dosyası** (`data_docs/` klasöründe) haline getirilerek yapılandırılmıştır.
 
-## ⚙️ 3. Çözüm Mimariniz ve Kullanılan Yöntemler 
+## ⚙️ 3. Çözüm Mimarisi ve Kullanılan Yöntemler 
 
 | Bileşen | Kullanılan Teknoloji | Amaç |
 | :--- | :--- | :--- |
@@ -23,7 +23,7 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 
 **RAG Süreci:** Kullanıcı sorgusu alınır. ChromaDB'den en alakalı metin parçaları çekilir. Bu parçalar ve sorgu, Gemini'ye gönderilerek nihai, **bağlama dayalı** yanıt oluşturulur.
 
-## 🚀 4. Kodunuzun Çalışma Kılavuzu 
+## 🚀 4. Kodun Çalışma Kılavuzu 
 
 ### Ön Koşullar
 * Python 3.9+
