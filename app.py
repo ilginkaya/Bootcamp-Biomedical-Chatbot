@@ -3,18 +3,19 @@ import os
 from pathlib import Path
 from typing import List
 
-# LangChain'in Hata Çözücü YENİ ve UYUMLU İMPORT YAPISI
-from langchain_core.prompts import PromptTemplate
-from langchain_core.vectorstores import VectorStoreRetriever # Retriever tipini tanımlamak için
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda 
-from langchain_core.output_parsers import StrOutputParser # Çıktıyı düz metne çevirmek için
-
+# LangChain'in Hata Çözücü ve UYUMLU İMPORT YAPISI
+from langchain_core.prompts import PromptTemplate 
 from langchain_google_genai import ChatGoogleGenerativeAI 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain.chains import RetrievalQA # LangChain'in son yapısı burada kaldı
 
-from langchain_community.vectorstores import Chroma
+# Çekirdek ve Topluluk Modülleri
+from langchain_core.output_parsers import StrOutputParser
+from langchain.text_splitter import RecursiveCharacterTextSplitter # TextSplitter'ı LangChain'den çekiyoruz
+from langchain_community.vectorstores import Chroma 
 from langchain_community.document_loaders import DirectoryLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_core.runnables import RunnablePassthrough # Runnable yapısı için
+
 
 # --- Sabitler ve Ayarlar ---
 LLM_MODEL = "gemini-2.5-flash"
@@ -43,13 +44,19 @@ def load_rag_chain():
     embeddings = GoogleGenerativeAIEmbeddings(model=EMBEDDING_MODEL, google_api_key=api_key)
 
     # 2. Veritabanının varlığını kontrol et ve yükle
+    vector_store = None
+    
     if not Path(DB_PATH).exists():
-        # Veritabanı yoksa otomatik oluşturma (İlk çalıştırmada sadece bir kez olur)
+        # --- VERİTABANI YOKSA OTOMATİK OLUŞTURMA BAŞLANGICI ---
         try:
+            # Dokümanları yükleme
             loader = DirectoryLoader(
                 DOCS_PATH, glob="**/*.txt", loader_kwargs={'encoding': 'utf-8', 'errors': 'ignore'}
             )
             docs = loader.load()
+            
+            # Parçalara ayırma (Chunking)
+            # TextSplitter'ı hatasız yerden çekiyoruz.
             text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
             chunks = text_splitter.split_documents(docs)
             
@@ -71,11 +78,10 @@ def load_rag_chain():
             persist_directory=DB_PATH, embedding_function=embeddings
         )
 
-    # 3. Yeni Runnable RAG Zincirini Kurma (Hatasız Yöntem)
+    # 3. RAG Zincirini Kurma
     llm = ChatGoogleGenerativeAI(model=LLM_MODEL, temperature=0.2, google_api_key=api_key)
     retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 
-    # 3.1. Prompt Template
     prompt_template = """
     Sen bir Biyomedikal Bilgi Asistanısın. Aşağıdaki biyomedikal metinleri (Context) kullanarak, kullanıcıya Türkçe ve net bir şekilde yanıt ver. 
     Yanıtların teknik, kısa ve direkt olmalıdır. Bağlamda bulamadığın sorulara "Bu konuda elimde yeterli bilgi yok." diye yanıt ver.
@@ -85,19 +91,16 @@ def load_rag_chain():
     Yanıt:
     """
     PROMPT = PromptTemplate.from_template(prompt_template)
-    
-    # 3.2. Zincir Tanımı: RetrievalQA'nın Runnable karşılığı
-    rag_chain = (
-        {"context": retriever, "question": RunnablePassthrough()} 
-        | PROMPT
-        | llm
-        | StrOutputParser()
+
+    # RetrievalQA, LangChain'in kendi içindeki en stabil ve basit zincir yapısıdır.
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=retriever,
+        return_source_documents=True,
+        chain_type_kwargs={"prompt": PROMPT}
     )
-    
-    # Not: Bu versiyon sadece yanıt döndürür, kaynakları çekmez. 
-    # Kaynakları çekmek için ek RunnableLambda kodları gerekir ki, projeyi basit tutalım.
-    
-    return rag_chain, retriever # Hem zinciri hem de retriever'ı döndürüyoruz
+    return qa_chain, retriever 
 
 # --- Streamlit Ana Uygulaması ---
 def main():
@@ -116,7 +119,6 @@ def main():
     st.markdown("---")
 
     # RAG sistemini başlat
-    # Yeni yapı ile iki değer dönüyor: zincir ve retriever
     qa_chain, retriever = load_rag_chain()
     if not qa_chain:
         st.stop() 
@@ -139,12 +141,13 @@ def main():
         with st.spinner("🧠 Gemini yanıt oluşturuyor..."):
             # RAG zincirini çalıştır
             try:
-                # Runnable zinciri sadece query'yi alır
-                response = qa_chain.invoke(prompt) 
+                # RetrievalQA'yı kullanıyoruz
+                result = qa_chain({"query": prompt})
+                response = result['result']
                 
-                # Kaynak dokümanları çekme (Ayrı bir adım olarak)
-                docs = retriever.get_relevant_documents(prompt)
-                
+                # Kaynak dokümanları doğrudan result'tan çekiyoruz (return_source_documents=True ayarlandığı için)
+                docs = result['source_documents']
+
                 # Kaynak dokümanları ekle
                 sources = "\n\n### 📄 Kaynak Dokümanlar:\n"
                 for i, doc in enumerate(docs):
@@ -163,4 +166,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()s
