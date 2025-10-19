@@ -75,4 +75,5 @@ Kullanıcı, arayüzde sorusunu sorar. Chatbot, otomatik olarak oluşturulan ver
 ***
 
 ### 🔗 Deploy Linki
-[Canlı Uygulama Linki](https://4f1b9c3b4cf22cb193.gradio.live/)
+[Canlı Uygulama Linki](https://fcaf7df0b59027a46c.gradio.live)
+Running on local URL:  (http://127.0.0.1:7860)
