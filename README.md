@@ -51,7 +51,7 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
     ```
 5.  **Uygulamayı Çalıştırma:**
     ```bash
-    python3 app.py"
+    python3 app.py
     ```
 Local URL'niz ile sayfaya ulaşabilrsiniz.
 
