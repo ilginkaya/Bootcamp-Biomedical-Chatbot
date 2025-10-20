@@ -33,7 +33,7 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
 ### Kurulum Adımları
 1.  **Reposu Klonlama:**
     ```bash
-    git clone [https://github.com/ilginkaya/Bootcamp-Biomedical-Chatbot.git](https://github.com/ilginkaya/Bootcamp-Biomedical-Chatbot.git)
+    git clone https://github.com/ilginkaya/Bootcamp-Biomedical-Chatbot.git
     cd Bootcamp-Biomedical-Chatbot
     ```
 2.  **Sanal Ortam Kurulumu:**
@@ -43,13 +43,17 @@ Bu proje, Akbank GenAI Bootcamp kapsamında geliştirilmiştir. Temel amaç, **R
     ```
 3.  **Bağımlılıkların Kurulumu:**
     ```bash
-    pip install -r requirements.txt
+    pip3 install -r requirements.txt
     ```
 4.  **API Anahtarı Tanımlama:**
     ```bash
     export GEMINI_API_KEY="[Kendi API Anahtarınız]"
     ```
-5.  **Veritabanı Oluşturma:** Uygulama, `app.py` içerisinde `rag_store` klasörünü bulamazsa ilk çalıştırmada **otomatik olarak oluşturacak** şekilde ayarlanmıştır.
+5.  **Uygulamayı Çalıştırma:**
+    ```bash
+    python3 app.py"
+    ```
+Local URL'niz ile sayfaya ulaşabilrsiniz.
 
 ## 5. Web Arayüzü & Product Kılavuzu 
 
